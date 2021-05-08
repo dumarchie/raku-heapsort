@@ -1,0 +1,22 @@
+use Test;
+
+use lib 'lib';
+use Heapsort;
+
+plan 2;
+
+my $range = ^100;               # sorted
+subtest 'heapsort Array', {
+    my @array = $range.pick(*); # shuffled
+    my $got = heapsort @array;
+    cmp-ok $got, '===', @array, 'heapsort(@array) returns the @array';
+    is-deeply @array, $range.Array, '@array is sorted';
+}
+
+use NativeCall;
+subtest 'heapsort CArray[uint16]', {
+    my @array := CArray[uint16].new: $range.pick(*);
+    my $got = heapsort @array;
+    cmp-ok $got, '===', @array, 'heapsort(@array) returns the @array';
+    is-deeply @array.list, $range.list, '@array is sorted';
+}
