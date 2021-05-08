@@ -83,10 +83,10 @@ sub swap($a is rw, $b is rw) {
     $b = $value;
 }
 
-sub pos-parent($pos) {
+sub pos-parent(int $pos) {
     ($pos - 1) div 2;
 }
 
-sub pos-right-child($pos) {
+sub pos-right-child(int $pos) {
     ($pos * 2) + 2;
 }
