@@ -40,7 +40,8 @@ sub heapify(@a) {
 sub sift-down(@a, $start, $end) {
     my $root = $start;
 
-    while (my $child = pos-left-child $root) <= $end {
+    my $child = pos-left-child $root;
+    while $child <= $end {
         my $swap = $root;         # keeps track of the child to swap with
         $swap = $child
           if @a[$swap] cmp @a[$child] === Less;
@@ -49,10 +50,16 @@ sub sift-down(@a, $start, $end) {
           if ++$child <= $end     # there is a right child
           && @a[$swap] cmp @a[$child] === Less;
 
-        return if $swap == $root; # the root contains the max value
+        if $swap == $root {       # the root contains the max value
+            $child = $end + 1;    # make this the last iteration
+        }
+        else {
+            swap @a[$root], @a[$swap];
 
-        swap @a[$root], @a[$swap];
-        $root = $swap;            # continue with the child heap
+            # now repair the child heap
+            $root = $swap;
+            $child = pos-left-child $root;
+        }
     }
 }
 
