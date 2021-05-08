@@ -35,31 +35,36 @@ sub heapify(@a) {
     }
 }
 
-# Repair the max-heap rooted at position $start,
-# assuming the child heaps are valid
-sub sift-down(@a, $start, $end) {
-    my $root = $start;
-
-    my $child = pos-left-child $root;
-    while $child <= $end {
-        my $swap = $root;         # keeps track of the child to swap with
-        $swap = $child
-          if @a[$swap] cmp @a[$child] === Less;
-
-        $swap = $child
-          if ++$child <= $end     # there is a right child
-          && @a[$swap] cmp @a[$child] === Less;
-
-        if $swap == $root {       # the root contains the max value
-            $child = $end + 1;    # make this the last iteration
+# Search leaf by iteratively following the edge to the child with max value
+sub search-leaf(@a, $i, $end) {
+    my $j = $i;
+    my $child;
+    while ($child = pos-right-child $j) <= $end {
+        # determine which child has the max value
+        if @a[$child] cmp @a[$child - 1] === More {
+            $j = $child;     # right child
         }
         else {
-            swap @a[$root], @a[$swap];
-
-            # now repair the child heap
-            $root = $swap;
-            $child = pos-left-child $root;
+            $j = $child - 1; # left child
         }
+    }
+    # at the deepest level there may be only one child
+    --$child <= $end ?? $child !! $j;
+}
+
+# Repair the max-heap rooted at position $i,
+# assuming the child heaps are valid
+sub sift-down(@a, $i, $end) {
+    my $j = search-leaf @a, $i, $end;
+    while @a[$i] cmp @a[$j] === More {
+        $j = pos-parent $j;
+    }
+
+    my $x  = @a[$j];
+    @a[$j] = @a[$i];
+    while $j > $i {
+        $j = pos-parent $j;
+        swap $x, @a[$j];
     }
 }
 
@@ -74,6 +79,6 @@ sub pos-parent($pos) {
     ($pos - 1) div 2;
 }
 
-sub pos-left-child($pos) {
-    ($pos * 2) + 1;
+sub pos-right-child($pos) {
+    ($pos * 2) + 2;
 }
