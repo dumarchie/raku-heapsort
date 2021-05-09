@@ -1,10 +1,11 @@
 unit module Heapsort;
 
 my class State {
-    has @!a;   # the array of values to sort
-    has $!end; # the last position in the heap
+    has @!a;        # the array of values to sort
+    has $!end;      # the last position in the heap region
+    has &!preorder; # must be a "strict preorder"
 
-    submethod BUILD(:@a) {
+    submethod BUILD(:@a, :&!preorder) {
         @!a  := @a;
         $!end = @a.elems - 1;
 
@@ -23,25 +24,27 @@ my class State {
 
     method sort() {
         # The following loop maintains the invariant that @!a[0..$!end] is a
-        # heap and every value beyond @!a[$!end] is greater than every value
-        # before it, so @!a[$!end..@!a.end] is in sorted order
+        # max-heap and every value beyond @!a[$!end] is in sorted order.
         while $!end > 0 {
-            # @!a[0] is the root of the heap and contains its max value;
-            # the swap moves it in front of the sorted values
+            # @!a[0] is the root of the heap; the swap moves its value in
+            # front of the sorted values; decrementing the size of the heap
+            # makes this value the head of the sorted region
             swap @!a[$!end], @!a[0];
-            $!end--;           # decrement the size of the heap
-            self.sift-down(0); # restore the max-heap property
+            $!end--;
+
+            # now repair the heap
+            self.sift-down(0);
         }
 
         # Return the sorted array
         @!a;
     }
 
-    # Repair the max-heap rooted at position $i,
+    # Repair the heap rooted at position $i,
     # assuming the child heaps are valid
     method sift-down($i) {
         my $j = self.search-leaf($i);
-        while @!a[$i] cmp @!a[$j] === More {
+        while &!preorder(@!a[$j], @!a[$i]) {
             $j = pos-parent $j;
         }
 
@@ -53,13 +56,13 @@ my class State {
         }
     }
 
-    # Iteratively follow the edge to the child with the max value
+    # Locate an external node,
+    # iteratively following the edge to the child with the highest priority
     method search-leaf($i) {
         my $j = $i;
         my $child;
         while ($child = pos-right-child $j) <= $!end {
-            # determine which child has the max value
-            if @!a[$child] cmp @!a[$child - 1] === More {
+            if &!preorder(@!a[$child - 1], @!a[$child]) {
                 $j = $child;     # right child
             }
             else {
@@ -71,9 +74,20 @@ my class State {
     }
 }
 
-# The main routine
-sub heapsort(@a) is export {
-    State.new(:@a).sort;
+# The default preorder relation:
+sub preorder(\a, \b) is pure {
+    a cmp b === Less
+}
+
+# The main routine:
+proto sub heapsort(|) is export {*}
+multi sub heapsort(@a) {
+    State.new(:@a, :&preorder).sort;
+}
+multi sub heapsort(&preorder, @a) {
+    # TODO: check that &preorder is a "strict preorder"
+    # by comparing @a[0] to itself (if @a is not empty)
+    State.new(:@a, :&preorder).sort;
 }
 
 # Utility routines
