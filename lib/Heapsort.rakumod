@@ -43,15 +43,15 @@ my class State {
     # Repair the heap rooted at position $i,
     # assuming the child heaps are valid
     method sift-down($i) {
-        my $j = self.search-leaf($i);
+        my $j := self.search-leaf($i);
         while &!preorder(@!a[$j], @!a[$i]) {
-            $j = pos-parent $j;
+            $j := pos-parent $j;
         }
 
         my $x   = @!a[$j];
         @!a[$j] = @!a[$i];
         while $j > $i {
-            $j = pos-parent $j;
+            $j := pos-parent $j;
             swap $x, @!a[$j];
         }
     }
@@ -61,16 +61,16 @@ my class State {
     method search-leaf($i) {
         my $j = $i;
         my $child;
-        while ($child = pos-right-child $j) <= $!end {
-            if &!preorder(@!a[$child - 1], @!a[$child]) {
-                $j = $child;     # right child
+        while ($child := pos-left-child $j) < $!end {
+            if &!preorder(@!a[$child], @!a[$child + 1]) {
+                $j = $child + 1;
             }
             else {
-                $j = $child - 1; # left child
+                $j = $child;
             }
         }
         # at the deepest level there may be only one child
-        --$child <= $!end ?? $child !! $j;
+        $child == $!end ?? $child !! $j;
     }
 }
 
@@ -101,6 +101,6 @@ sub pos-parent(int $pos) {
     ($pos - 1) div 2;
 }
 
-sub pos-right-child(int $pos) {
-    ($pos * 2) + 2;
+sub pos-left-child(int $pos) {
+    ($pos * 2) + 1;
 }
