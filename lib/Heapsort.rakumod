@@ -43,13 +43,16 @@ my class State {
     # Repair the heap rooted at position $i,
     # assuming the child heaps are valid
     method sift-down($i) {
-        my $j := self.search-leaf($i);
-        while &!preorder(@!a[$j], @!a[$i]) {
-            $j := pos-parent $j;
+        my $value = @!a[$i];
+        my $j    := self.search-leaf($i);
+        my $succ := @!a[$j];
+        while &!preorder($succ, $value) {
+            $j    := pos-parent $j;
+            $succ := @!a[$j];
         }
 
-        my $x   = @!a[$j];
-        @!a[$j] = @!a[$i];
+        my $x = $succ;
+        $succ = $value;
         while $j > $i {
             $j := pos-parent $j;
             swap $x, @!a[$j];
