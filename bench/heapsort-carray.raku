@@ -1,10 +1,12 @@
+use NativeCall;
+
 use lib 'lib';
 use Heapsort;
 
 my $n = 2**16;
 my @times;
 for ^4 {
-    my @array  = (^$n).pick(*);
+    my @array := CArray[uint16].new: (^$n).pick(*);
     my $start  = now;
     my $result = heapsort @array;
 
@@ -13,7 +15,7 @@ for ^4 {
       if $result.elems != $n;
 
     my $time = now - $start;
-    printf "heapsort Array with %d elems:\t%1.3fs\n", $n, $time;
+    printf "heapsort CArray with %d elems:\t%1.3fs\n", $n, $time;
 
     push @times, $time;
 }

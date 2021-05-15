@@ -2,5 +2,6 @@
 .precomp
 lib/.precomp
 
-# profiles
+# benchmarks and profiles
+benchmarks*
 profile-*
