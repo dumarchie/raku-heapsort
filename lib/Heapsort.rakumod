@@ -43,37 +43,56 @@ my class State {
     # Repair the heap rooted at position $i,
     # assuming the child heaps are valid
     method sift-down($i) {
-        my $value = @!a[$i];
-        my $j    := self.search-leaf($i);
-        my $succ := @!a[$j];
+        my @path := self.bounce-path($i);
+        my $root := @path[0];
+
+        my $value   = $root;     # the value to sift down
+        my int $end = @path.end; # the new position of the value in the path
+        my $succ := @path[$end];
         while &!preorder($succ, $value) {
-            $j    := pos-parent $j;
-            $succ := @!a[$j];
+            $end--;
+            $succ := @path[$end];
         }
 
-        my $x = $succ;
-        $succ = $value;
-        while $j > $i {
-            $j := pos-parent $j;
-            swap $x, @!a[$j];
+        # shift values on the path
+        my int $pos;
+        while $pos < $end {
+            $succ := @path[++$pos];
+            $root  = $succ; # copy value
+            $root := $succ; # rebind
         }
+
+        # assign the value to the new position
+        $succ = $value;
     }
 
-    # Locate an external node,
-    # iteratively following the edge to the child with the highest priority
-    method search-leaf($i) {
+    # The bounce path is an Array whose elements are bound to nodes on the path
+    # from position $i to a leaf where at each level the child with the highest
+    # priority is chosen.
+    method bounce-path($i) is raw {
+        my @path;
+        my int $depth;
+
         my $j = $i;
-        my $child;
+        @path[$depth++] := @!a[$j]; # root node
+
+        my $child;                  # position of left child
+        my ($left, $right);         # child nodes
         while ($child := pos-left-child $j) < $!end {
-            if &!preorder(@!a[$child], @!a[$child + 1]) {
+            $left  := @!a[$child];
+            $right := @!a[$child + 1];
+            if &!preorder($left, $right) {
                 $j = $child + 1;
+                @path[$depth++] := $right;
             }
             else {
                 $j = $child;
+                @path[$depth++] := $left;
             }
         }
         # at the deepest level there may be only one child
-        $child == $!end ?? $child !! $j;
+        @path[$depth] := @!a[$child] if $child == $!end;
+        @path;
     }
 }
 
