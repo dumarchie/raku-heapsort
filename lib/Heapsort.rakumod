@@ -25,11 +25,12 @@ my class State {
     method sort() {
         # The following loop maintains the invariant that @!a[0..$!end] is a
         # max-heap and every value beyond @!a[$!end] is in sorted order.
+        my \root = @!a[0];
         while $!end > 0 {
-            # @!a[0] is the root of the heap; the swap moves its value in
-            # front of the sorted values; decrementing the size of the heap
-            # makes this value the head of the sorted region
-            swap @!a[$!end], @!a[0];
+            # the swap moves the value at the root in front of the sorted
+            # values; decrementing the size of the heap makes this value the
+            # head of the sorted region
+            swap @!a[$!end], root;
             $!end--;
 
             # now repair the heap
@@ -69,7 +70,7 @@ my class State {
     # The bounce path is an Array whose elements are bound to nodes on the path
     # from position $i to a leaf where at each level the child with the highest
     # priority is chosen.
-    method bounce-path($i) is raw {
+    method bounce-path($i) {
         my @path;
         my int $depth;
 
