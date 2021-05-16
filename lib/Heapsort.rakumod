@@ -2,7 +2,7 @@ unit module Heapsort;
 
 my class State {
     has @!a;        # the array of values to sort
-    has $!end;      # the last position in the heap region
+    has $!end;  # the last position in the heap region
     has &!preorder; # must be a "strict preorder"
 
     submethod BUILD(:@a, :&!preorder) {
@@ -25,12 +25,12 @@ my class State {
     method sort() {
         # The following loop maintains the invariant that @!a[0..$!end] is a
         # max-heap and every value beyond @!a[$!end] is in sorted order.
-        my \root = @!a[0];
+        my \root = @!a.AT-POS(0);
         while $!end > 0 {
             # the swap moves the value at the root in front of the sorted
             # values; decrementing the size of the heap makes this value the
             # head of the sorted region
-            swap @!a[$!end], root;
+            swap @!a.AT-POS($!end), root;
             $!end--;
 
             # now repair the heap
@@ -75,13 +75,13 @@ my class State {
         my int $depth;
 
         my $j = $i;
-        @path[$depth++] := @!a[$j]; # root node
+        @path[$depth++] := @!a.AT-POS($j); # root node
 
-        my $child;                  # position of left child
-        my ($left, $right);         # child nodes
+        my $child;                         # position of left child
+        my ($left, $right);                # child nodes
         while ($child := pos-left-child $j) < $!end {
-            $left  := @!a[$child];
-            $right := @!a[$child + 1];
+            $left  := @!a.AT-POS($child);
+            $right := @!a.AT-POS($child + 1);
             if &!preorder($left, $right) {
                 $j = $child + 1;
                 @path[$depth++] := $right;
@@ -92,7 +92,7 @@ my class State {
             }
         }
         # at the deepest level there may be only one child
-        @path[$depth] := @!a[$child] if $child == $!end;
+        @path[$depth] := @!a.AT-POS($child) if $child == $!end;
         @path;
     }
 }
