@@ -2,7 +2,7 @@ unit module Heapsort;
 
 my class State {
     has @!a;        # the array of values to sort
-    has $!end;  # the last position in the heap region
+    has $!end;      # the last position in the heap region
     has &!preorder; # must be a "strict preorder"
 
     submethod BUILD(:@a, :&!preorder) {
@@ -11,7 +11,7 @@ my class State {
 
         # Put the values of @a in max-heap order,
         # working up from the last internal node
-        my $i = pos-parent $!end;
+        my int $i = pos-parent $!end;
         while $i >= 0 {
             # sift down the value at position $i
             # so that all values below are in heap order
@@ -25,8 +25,9 @@ my class State {
     method sort() {
         # The following loop maintains the invariant that @!a[0..$!end] is a
         # max-heap and every value beyond @!a[$!end] is in sorted order.
-        my \root = @!a.AT-POS(0);
-        while $!end > 0 {
+        my int $begin = 0;
+        my \root = @!a.AT-POS($begin);
+        while $!end > $begin {
             # the swap moves the value at the root in front of the sorted
             # values; decrementing the size of the heap makes this value the
             # head of the sorted region
@@ -34,7 +35,7 @@ my class State {
             $!end--;
 
             # now repair the heap
-            self.sift-down(0);
+            self.sift-down($begin);
         }
 
         # Return the sorted array
