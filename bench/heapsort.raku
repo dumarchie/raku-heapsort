@@ -1,7 +1,7 @@
 use lib 'lib';
 use Heapsort;
 
-my $n = 2**16;
+my $n = 2**18;
 my @times;
 for ^4 {
     my @array  = (^$n).pick(*);
