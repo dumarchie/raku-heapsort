@@ -51,7 +51,7 @@ my class State {
         my $value   = $root;     # the value to sift down
         my int $end = @path.end; # the new position of the value in the path
         my $succ := @path[$end];
-        while &!cmp($succ, $value) === Less {
+        while &!cmp($succ, $value) == Less {
             $end--;
             $succ := @path[$end];
         }
@@ -83,7 +83,7 @@ my class State {
         while ($child := pos-left-child $j) < $!end {
             $left  := @!a.AT-POS($child);
             $right := @!a.AT-POS($child + 1);
-            if &!cmp($left, $right) === Less {
+            if &!cmp($left, $right) == Less {
                 $j = $child + 1;
                 @path[$depth++] := $right;
             }
