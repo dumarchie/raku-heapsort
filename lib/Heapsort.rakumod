@@ -73,27 +73,29 @@ my class State {
     # priority is chosen.
     method bounce-path($i) {
         my @path;
-        my int $depth;
+        my int $elems;
 
         my $j = $i;
-        @path[$depth++] := @!a.AT-POS($j); # root node
+        @path[$elems++] := @!a.AT-POS($j); # root node
 
         my $child;                         # position of left child
-        my ($left, $right);                # child nodes
         while ($child := pos-left-child $j) < $!end {
-            $left  := @!a.AT-POS($child);
-            $right := @!a.AT-POS($child + 1);
-            if &!cmp($left, $right) == Less {
+            my \left  = @!a.AT-POS($child);
+            my \right = @!a.AT-POS($child + 1);
+            if &!cmp(left, right) == Less {
                 $j = $child + 1;
-                @path[$depth++] := $right;
+                @path[$elems++] := right;
             }
             else {
                 $j = $child;
-                @path[$depth++] := $left;
+                @path[$elems++] := left;
             }
         }
         # at the deepest level there may be only one child
-        @path[$depth] := @!a.AT-POS($child) if $child == $!end;
+        if $child == $!end {
+            my \leaf = @!a.AT-POS($child);
+            @path[$elems] := leaf;
+        }
         @path;
     }
 }
