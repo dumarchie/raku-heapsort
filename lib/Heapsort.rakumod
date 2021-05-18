@@ -1,11 +1,11 @@
 unit module Heapsort;
 
 my class State {
-    has @!a;        # the array of values to sort
-    has $!end;      # the last position in the heap region
-    has &!preorder; # must be a "strict preorder"
+    has @!a;   # the array of values to sort
+    has $!end; # the last position in the heap region
+    has &!cmp; # should return Order:D
 
-    submethod BUILD(:@a, :&!preorder) {
+    submethod BUILD(:@a, :&!cmp) {
         @!a  := @a;
         $!end = @a.elems - 1;
 
@@ -51,7 +51,7 @@ my class State {
         my $value   = $root;     # the value to sift down
         my int $end = @path.end; # the new position of the value in the path
         my $succ := @path[$end];
-        while &!preorder($succ, $value) {
+        while &!cmp($succ, $value) === Less {
             $end--;
             $succ := @path[$end];
         }
@@ -83,7 +83,7 @@ my class State {
         while ($child := pos-left-child $j) < $!end {
             $left  := @!a.AT-POS($child);
             $right := @!a.AT-POS($child + 1);
-            if &!preorder($left, $right) {
+            if &!cmp($left, $right) === Less {
                 $j = $child + 1;
                 @path[$depth++] := $right;
             }
@@ -98,20 +98,15 @@ my class State {
     }
 }
 
-# The default preorder relation:
-sub preorder(\a, \b) is pure {
-    a cmp b === Less
-}
-
 # The main routine:
 proto sub heapsort(|) is export {*}
 multi sub heapsort(@a) {
-    State.new(:@a, :&preorder).sort;
+    heapsort * cmp *, @a;
 }
-multi sub heapsort(&preorder, @a) {
+multi sub heapsort(&cmp, @a) {
     # TODO: check that &preorder is a "strict preorder"
     # by comparing @a[0] to itself (if @a is not empty)
-    State.new(:@a, :&preorder).sort;
+    State.new(:@a, :&cmp).sort;
 }
 
 # Utility routines

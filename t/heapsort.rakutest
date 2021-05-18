@@ -16,10 +16,11 @@ subtest 'heapsort Array', {
 use NativeCall;
 subtest 'heapsort &order, CArray[uint16]', {
     my @array := CArray[uint16].new: $range.pick(*);
-    my $got = heapsort * > *, @array;
+    my &cmp = sub (\a, \b) { b <=> a };
+    my $got = heapsort &cmp, @array;
     cmp-ok $got, '===', @array,
-      'heapsort(* > *, @array) returns the @array';
+      'heapsort(&cmp, @array) returns the @array';
 
-    is-deeply @array.list, $range.reverse,
-      '@array is sorted in reverse order';
+    is-deeply @array.list, $range.reverse.list,
+      '@array is sorted in the order specified by &cmp';
 }
