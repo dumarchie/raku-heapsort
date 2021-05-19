@@ -1,11 +1,11 @@
 unit module Heapsort;
 
 my class State {
-    has @!a;   # the array of values to sort
-    has $!end; # the last position in the heap region
-    has &!cmp; # should return Order:D
+    has @!a;        # the array of values to sort
+    has $!end;      # the last position in the heap region
+    has &!preorder; # should be a "strict preorder"
 
-    submethod BUILD(:@a, :&!cmp) {
+    submethod BUILD(:@a, :&!preorder) {
         @!a  := @a;
         $!end = @a.elems - 1;
 
@@ -45,13 +45,13 @@ my class State {
     # Repair the heap rooted at position $i,
     # assuming the child heaps are valid
     method sift-down($i) {
-        my @path := self.bounce-path($i);
+        my @path := self.descend($i, &!preorder);
         my $root := @path[0];
 
         my $value   = $root;     # the value to sift down
         my int $end = @path.end; # the new position of the value in the path
         my $succ := @path[$end];
-        while &!cmp($succ, $value) == Less {
+        while &!preorder($succ, $value) {
             $end--;
             $succ := @path[$end];
         }
@@ -68,10 +68,10 @@ my class State {
         $succ = $value;
     }
 
-    # The bounce path is an Array whose elements are bound to nodes on the path
-    # from position $i to a leaf where at each level the child with the highest
-    # priority is chosen.
-    method bounce-path($i) {
+    # Return an Array whose elements are bound to nodes on a
+    # path down from position $i. At every step, choose the
+    # right child if and only if preorder(left, right) is true.
+    method descend($i, &preorder) {
         my @path;
         my int $elems;
 
@@ -82,7 +82,7 @@ my class State {
         while ($child := pos-left-child $j) < $!end {
             my \left  = @!a.AT-POS($child);
             my \right = @!a.AT-POS($child + 1);
-            if &!cmp(left, right) == Less {
+            if preorder(left, right) {
                 $j = $child + 1;
                 @path[$elems++] := right;
             }
@@ -103,12 +103,10 @@ my class State {
 # The main routine:
 proto sub heapsort(|) is export {*}
 multi sub heapsort(@a) {
-    heapsort * cmp *, @a;
+    State.new(:@a, :preorder(* cmp * == Less)).sort;
 }
-multi sub heapsort(&cmp, @a) {
-    # TODO: check that &preorder is a "strict preorder"
-    # by comparing @a[0] to itself (if @a is not empty)
-    State.new(:@a, :&cmp).sort;
+multi sub heapsort(&infix:<cmp>, @a) {
+    State.new(:@a, :preorder(* cmp * == Less)).sort;
 }
 
 # Utility routines
