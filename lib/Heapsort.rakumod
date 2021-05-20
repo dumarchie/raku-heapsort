@@ -44,7 +44,7 @@ my class State {
 
     # Repair the heap rooted at position $i,
     # assuming the child heaps are valid
-    method sift-down($i) {
+    method sift-down($i --> Nil) {
         my @path := self.descend($i, &!preorder);
         my $root := @path[0];
 
@@ -110,7 +110,7 @@ multi sub heapsort(&infix:<cmp>, @a) {
 }
 
 # Utility routines
-sub swap($a is rw, $b is rw) {
+sub swap($a is rw, $b is rw --> Nil) {
     my $value = $a;
     $a = $b;
     $b = $value;
