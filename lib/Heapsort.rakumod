@@ -22,19 +22,21 @@ my class State {
         }
     }
 
+    my int $begin;
     method sort() {
-        # The following loop maintains the invariant that @!a[0..$!end] is a
-        # max-heap and every value beyond @!a[$!end] is in sorted order.
-        my int $begin = 0;
-        my \root = @!a.AT-POS($begin);
-        while $!end > $begin {
-            # the swap moves the value at the root in front of the sorted
-            # values; decrementing the size of the heap makes this value the
-            # head of the sorted region
-            swap @!a.AT-POS($!end), root;
-            $!end--;
+        my $root := @!a.AT-POS($begin);
 
-            # now repair the heap
+        my $value; # to move from the heap to the sorted region
+        while $!end > 0 {
+            # make the last leaf of the heap the head of the sorted region
+            my $head := @!a[$!end--];
+
+            # swap the values of the head and the root
+            $value = $root;
+            $root  = $head;
+            $head  = $value;
+
+            # repair the heap
             self.sift-down($begin);
         }
 
@@ -110,12 +112,6 @@ multi sub heapsort(&infix:<cmp>, @a) {
 }
 
 # Utility routines
-sub swap($a is rw, $b is rw --> Nil) {
-    my $value = $a;
-    $a = $b;
-    $b = $value;
-}
-
 sub pos-parent(int $pos) {
     ($pos - 1) div 2;
 }
