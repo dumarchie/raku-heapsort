@@ -47,7 +47,7 @@ my class State {
     # Repair the heap rooted at position $i,
     # assuming the child heaps are valid
     method sift-down($i --> Nil) {
-        my @path := self.descend($i, &!preorder);
+        my @path := self.descend(&!preorder, $i);
         my $root := @path[0];
 
         my $value   = $root;     # the value to sift down
@@ -71,32 +71,32 @@ my class State {
     }
 
     # Return an Array whose elements are bound to nodes on a
-    # path down from position $i. At every step, choose the
+    # path down from position $start. At every step, choose the
     # right child if and only if preorder(left, right) is true.
-    method descend($i, &preorder) {
+    method descend(&preorder, $start = 0) {
         my @path;
         my int $elems;
 
-        my $j = $i;
-        @path[$elems++] := @!a.AT-POS($j); # root node
+        # .AT-POS may be faster if $start is a native int
+        @path[$elems++] := @!a.AT-POS($start);
 
-        my $child;                         # position of left child
-        while ($child := pos-left-child $j) < $!end {
-            my \left  = @!a.AT-POS($child);
-            my \right = @!a.AT-POS($child + 1);
+        my $child := pos-left-child $start;
+        while $child < $!end {
+            my \left  = @!a[$child];
+            my \right = @!a[$child + 1];
             if preorder(left, right) {
-                $j = $child + 1;
                 @path[$elems++] := right;
+                $child := pos-left-child $child + 1;
             }
             else {
-                $j = $child;
                 @path[$elems++] := left;
+                $child := pos-left-child $child;
             }
         }
+
         # at the deepest level there may be only one child
         if $child == $!end {
-            my \leaf = @!a.AT-POS($child);
-            @path[$elems] := leaf;
+            @path[$elems] := @!a[$child];
         }
         @path;
     }
