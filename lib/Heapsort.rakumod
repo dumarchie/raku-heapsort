@@ -2,7 +2,7 @@ unit module Heapsort;
 
 my class State {
     has @!a;        # the array of values to sort
-    has $!end;      # the last position in the heap region
+    has Int $.end;  # the last position in the heap region
     has &!preorder; # should be a "strict preorder"
 
     submethod BUILD(:@a, :&!preorder) {
@@ -81,7 +81,8 @@ my class State {
         @path[$elems++] := @!a.AT-POS($start);
 
         my $child := pos-left-child $start;
-        while $child < $!end {
+        my \end = self.end;
+        while $child < end {
             my \left  = @!a[$child];
             my \right = @!a[$child + 1];
             if preorder(left, right) {
@@ -95,7 +96,7 @@ my class State {
         }
 
         # at the deepest level there may be only one child
-        if $child == $!end {
+        if $child == end {
             @path[$elems] := @!a[$child];
         }
         @path;
