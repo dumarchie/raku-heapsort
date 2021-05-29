@@ -11,14 +11,8 @@ my class State {
 
         # Put the values of @a in max-heap order,
         # working up from the last internal node
-        my int $i = pos-parent $!end;
-        while $i >= 0 {
-            # sift down the value at position $i
-            # so that all values below are in heap order
+        loop (my int $i = pos-parent $!end; $i >= 0; $i--) {
             self.sift-down($i);
-
-            # continue with the preceding internal node
-            $i--;
         }
     }
 
