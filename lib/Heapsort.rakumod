@@ -38,30 +38,27 @@ my class State {
         @!a;
     }
 
-    # Repair the heap rooted at position $i,
+    # Repair the heap rooted at position $start,
     # assuming the child heaps are valid
-    method sift-down($i --> Nil) {
-        my @path := self.descend(&!preorder, $i);
+    method sift-down($start --> Nil) {
+        my @path := self.descend(&!preorder, $start);
         my $root := @path[0];
+        my $value = $root;
 
-        my $value   = $root;     # the value to sift down
-        my int $end = @path.end; # the new position of the value in the path
-        my $succ := @path[$end];
-        while &!preorder($succ, $value) {
-            $end--;
-            $succ := @path[$end];
-        }
+        # determine the new position for the value
+        my int $new = @path.end;
+        while &!preorder(@path[$new], $value) { $new-- }
 
-        # shift values on the path
+        # shift values along the path until we've cleared the new position
         my int $pos;
-        while $pos < $end {
-            $succ := @path[++$pos];
+        while $pos < $new {
+            my $succ := @path[++$pos];
             $root  = $succ; # copy value
             $root := $succ; # rebind
         }
 
         # assign the value to the new position
-        $succ = $value;
+        $root = $value;
     }
 
     # Return an Array whose elements are bound to nodes on a
