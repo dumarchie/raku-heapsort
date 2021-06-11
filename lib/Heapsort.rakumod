@@ -3,17 +3,23 @@ unit module Heapsort;
 my class State {
     has @!a;        # the array of values to sort
     has Int $.end;  # the last position in the heap region
-    has &!preorder; # should be a "strict preorder"
+    has &.preorder; # should be a "strict preorder"
 
-    submethod BUILD(:@a, :&!preorder) {
-        @!a  := @a;
-        $!end = @a.elems - 1;
+    method STORE(@values) {
+        @!a  := @values;
+        $!end = @!a.elems - 1;
 
-        # Put the values of @a in max-heap order,
+        # Put the @values in heap order,
         # working up from the last internal node
         loop (my int $i = pos-parent $!end; $i >= 0; $i--) {
             self.sift-down($i);
         }
+    }
+
+    method heapify(@values, &preorder) {
+        my \SELF = self.bless(:&preorder);
+        SELF.STORE(@values);
+        SELF;
     }
 
     my int $begin;
@@ -97,10 +103,10 @@ my class State {
 # The main routine:
 proto sub heapsort(|) is export {*}
 multi sub heapsort(@a) {
-    State.new(:@a, :preorder(* cmp * == More)).sort;
+    State.heapify(@a, * cmp * == More).sort;
 }
 multi sub heapsort(&infix:<cmp>, @a) {
-    State.new(:@a, :preorder(* cmp * == More)).sort;
+    State.heapify(@a, * cmp * == More).sort;
 }
 
 # Utility routines
