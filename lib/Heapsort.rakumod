@@ -47,7 +47,7 @@ my class State {
 
         # determine the new position for the value
         my int $new = @path.end;
-        while &!preorder(@path[$new], $value) { $new-- }
+        while &!preorder($value, @path[$new]) { $new-- }
 
         # shift values along the path until we've cleared the new position
         my int $pos;
@@ -63,7 +63,7 @@ my class State {
 
     # Return an Array whose elements are bound to nodes on a
     # path down from position $start. At every step, choose the
-    # right child if and only if preorder(left, right) is true.
+    # right child if and only if preorder(right, left) is true.
     method descend(&preorder, $start = 0) {
         my @path;
         my int $elems;
@@ -76,7 +76,7 @@ my class State {
         while $child < end {
             my \left  = @!a[$child];
             my \right = @!a[$child + 1];
-            if preorder(left, right) {
+            if preorder(right, left) {
                 @path[$elems++] := right;
                 $child := pos-left-child $child + 1;
             }
@@ -97,10 +97,10 @@ my class State {
 # The main routine:
 proto sub heapsort(|) is export {*}
 multi sub heapsort(@a) {
-    State.new(:@a, :preorder(* cmp * == Less)).sort;
+    State.new(:@a, :preorder(* cmp * == More)).sort;
 }
 multi sub heapsort(&infix:<cmp>, @a) {
-    State.new(:@a, :preorder(* cmp * == Less)).sort;
+    State.new(:@a, :preorder(* cmp * == More)).sort;
 }
 
 # Utility routines
