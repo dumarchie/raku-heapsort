@@ -13,9 +13,8 @@ subtest 'heapsort Array', {
     is-deeply @array, $range.Array, '@array is sorted';
 }
 
-use NativeCall;
-subtest 'heapsort &order, CArray[uint16]', {
-    my @array := CArray[uint16].new: $range.pick(*);
+subtest 'heapsort &cmp, array[int]', {
+    my int @array = $range.pick(*);
     my &cmp = sub (\a, \b) { b <=> a };
     my $got = heapsort &cmp, @array;
     cmp-ok $got, '===', @array,

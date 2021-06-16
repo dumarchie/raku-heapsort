@@ -1,7 +1,7 @@
 my $n = 2**18;
 my @times;
 for ^4 {
-    my @array  = (^$n).pick(*);
+    my int @array = (^$n).pick(*);
     my $start  = now;
     my @sorted = sort @array;
 
@@ -9,7 +9,7 @@ for ^4 {
     die "Incorrect result" if @sorted.tail != $n - 1;
 
     my $time = now - $start;
-    printf "sort Array with %d elems:\t%1.3fs\n", $n, $time;
+    printf "sort array[int] with %d elems:\t%1.3fs\n", $n, $time;
 
     push @times, $time;
 }
