@@ -69,7 +69,7 @@ my class State {
 
     # Return an Array whose elements are bound to nodes on a
     # path down from position $start. At every step, choose the
-    # right child if and only if preorder(right, left) is true.
+    # left child if and only if preorder(left, right) is true.
     method descend(&preorder, $start = 0) {
         my @path;
         my int $elems;
@@ -82,13 +82,13 @@ my class State {
         while $child < end {
             my \left  = @!a[$child];
             my \right = @!a[$child + 1];
-            if preorder(right, left) {
-                @path[$elems++] := right;
-                $child := pos-left-child $child + 1;
-            }
-            else {
+            if preorder(left, right) {
                 @path[$elems++] := left;
                 $child := pos-left-child $child;
+            }
+            else {
+                @path[$elems++] := right;
+                $child := pos-left-child $child + 1;
             }
         }
 
