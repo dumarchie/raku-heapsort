@@ -52,8 +52,8 @@ my class State {
         my $value = $root;
 
         # determine the new position for the value
-        my int $new = @path.end;
-        while &!preorder($value, @path[$new]) { $new-- }
+        my int $new = @path.elems;
+        while &!preorder($value, @path[--$new]) { }
 
         # shift values along the path until we've cleared the new position
         my int $pos;
